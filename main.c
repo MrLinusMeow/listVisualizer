@@ -16,7 +16,7 @@ list initList(){
 	head->key = 1;
 
 	butt->next = butt;
-	butt->key = '\0';
+	butt->key = 0xff;
 
 	list[0] = head;
 	list[1] = butt;
@@ -38,7 +38,7 @@ node* addAfter( char k, node* t){
 }
 
 void delAfter( node* t){
-	printf("\t-del %2x \e[90;1m[%p]\e[0m\n", t->next->key, t->next);
+	printf("\t-del %2x \e[90;1m[%p]\e[0m\n", t->key, t->next);
 	node* x = (node*) malloc(sizeof *x);
 	x = t->next->next;
 	free(t->next);
@@ -49,33 +49,31 @@ void delAfter( node* t){
 }
 
 int main(){
-	list l = initList();
-
 	printf("Creating list:\n");
-	l[2] = (node*)malloc(sizeof *l);
-	l[2] = addAfter('n', l[0]);
-
-	l[3] = (node*)malloc(sizeof *l);
-	l[3] = addAfter('i', l[0]);
-
-	l[4] = (node*)malloc(sizeof *l);
-	l[4] = addAfter('p', l[0]);
-
-	l[5] = (node*)malloc(sizeof *l);
-	l[5] = addAfter('s', l[0]);
-	delAfter( l[0]);
+	list l = initList();
+	for(int i = 2; i < 26 ; i++){
+		l[i] = (node*)malloc(sizeof *l);
+	}
+	for(int i = 2; i < 26 ; i++){
+		l[i] = addAfter((char)i+'a', l[0]);
+	}
+	delAfter(l[12]);
 
 	printf("\nResult:\n");
 	node* t = l[0];
-	char c = '1';
+	char x = '2';
+	char y = '1';
 	for(int i = 0; ; ++i){
-		if(c >= '2' && c <= '5') c = '6'-(char)i;
-		if(t == t->next) {printf("\t%2x \e[9%cm[%p]\e[0m\n\t...\n", t->key, c, t); break;}
-		printf("\t%2x \e[9%cm[%p]\e[0m\n", t->key, c, t);
+		y = (y % 58) ? y : '0';
+		if(y == '0') ++x;
+		if( (x == '9') && (y == '9') ) x = '2';
+		
+		if(t == t->next) {printf("\t%2x \e[38:5:%c%cm[%p]\e[0m\n\t...\n", t->key, x, y, t); break;}
+		
+		printf("\t%2x \e[38:5:%c%cm[%p]\e[0m\n", t->key, x, y, t);
 		printf("\t  V\n");
-		if(i==0) ++c;
-		if(i==4) c = '6';
 		t = t->next;
+		++y;
 	}
 
 	free(l);
