@@ -25,27 +25,49 @@ list initList(){
 	return list;
 }
 
+void incHead(node* t){
+	node* head = (*(&t));
+	head->key += 1;
+	printf("\t\e[92;1m[head key]\e[0m + 1 = %2x\n", head->key);
+}
+
 node* addAfter( char k, node* t){
 	node* new = (node*)malloc(sizeof *new);
 	new->key = k;
 	new->next = t->next;
 	t->next = new;
-	node* head = (*(&t));
-	head->key += 1;
-	printf("\n\t+add %2x \e[96;1m[%p]\e[0m-> %2x \e[94;1m[%p]\e[0m\n", new->key, new, new->next->key, new->next);
-	printf("\t\e[92;1m[head key]\e[0m + 1 = %2x\n", head->key);
+	printf("\n\t+add %2x \e[96;1m[%p]\e[0m-> %2x \e[94;1m[%p]\e[0m", new->key, new, new->next->key, new->next);
+	incHead(t);
 	return new;
 }
 
 void delAfter( node* t){
-	printf("\t-del %2x \e[90;1m[%p]\e[0m\n", t->key, t->next);
+	printf("\n\t-del %2x \e[90;1m[%p]\e[0m", t->next->key, t->next);
 	node* x = (node*) malloc(sizeof *x);
 	x = t->next->next;
 	free(t->next);
 	t->next = x;
-	node* head = *(&t);
-	head->key -= (head->key != 0);
-	printf("\t\e[92;1m[head key]\e[0m - 1 = %2x\n", head->key);
+}
+
+void switchPositionOfNext(node* A, node* B){
+	printf("\tswitched position: %2x \e[30;103m[%p]\e[0m <=> %2x \e[30;103m[%p]\e[0m\n", A->next->key, A->next, B->next->key, B->next);
+	node* t = (node*)malloc(sizeof t->next);
+	t = A->next->next;
+	A->next->next = B->next->next;
+	B->next->next = t;
+	t = A->next;
+	A->next = B->next;
+	B->next = t;
+	//free(t);
+}
+
+void switchKeys(node* a, node* b){
+	printf("\tswitched key values: \e[97;41m%2x\e[0m [%p] <=> \e[97;41m%2x\e[0m [%p]", a->key, a, b->key, b);
+	node* t = (node*)malloc(sizeof t->key);
+	t->key = a->key;
+	a->key = b->key;
+	b->key = t->key;
+	free(t);
 }
 
 int main(){
@@ -56,8 +78,21 @@ int main(){
 	}
 	for(int i = 2; i < 26 ; i++){
 		l[i] = addAfter((char)i+'a', l[0]);
+		if(i==12) {
+			delAfter(l[i]);
+			--l[0]->key;
+			printf("\t\e[92;1m[head key]\e[0m - 1 = %2x\n", l[0]->key);
+		}
+		if(i==24) {
+			delAfter(l[i]);
+			--l[0]->key;
+			printf("\t\e[92;1m[head key]\e[0m - 1 = %2x\n", l[0]->key);
+		}
 	}
-	delAfter(l[12]);
+
+	switchPositionOfNext(l[16], l[8]);
+	
+	switchKeys(l[2],l[4]);
 
 	printf("\nResult:\n");
 	node* t = l[0];
