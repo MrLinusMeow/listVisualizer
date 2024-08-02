@@ -20,6 +20,7 @@ list initList(){
 
 	list[0] = head;
 	list[1] = butt;
+
 	printf("\thead: %x \e[92;1m[%p]\e[0m->\e[91;1m[%p]\e[0m\n", list[0]->key, list[0], list[0]->next);
 	printf("\tbutt: %x \e[91;1m[%p]\e[0m->\e[91;1m[%p]\e[0m\n", list[1]->key, list[1], list[1]->next);
 	return list;
@@ -28,38 +29,36 @@ list initList(){
 node* addAfter( char k, node* t){
 	node* new = (node*) malloc(sizeof *new);
 	new->key = k;
-	new->next = t->next;
+	new->next = (t == t->next) ? new : t->next;
 	t->next = new;
 	printf("\n\t+add %2x \e[96;1m[%p]\e[0m-> %2x \e[94;1m[%p]\e[0m\n", new->key, new, new->next->key, new->next);
 	return new;
 }
 
 void delAfter( node* t){
-	printf("\n\t-del %2x \e[97;100;1m[%p]\e[0m\n", t->next->key, t->next);
-	node* x = (node*) malloc(sizeof *x);
-	x = t->next->next;
+	printf("\n\t-del %2x \e[97;100;1m[%p]\e[0m\n", t->key, t);
+	node x;
+	x = *(t->next);
 	free(t->next);
-	t->next = x;
+	*(t) = x;
 }
 
-void switchPositionOfNext(node* A, node* B){
-	printf("\n\tswitching position: %2x \e[30;103m[%p]\e[0m <=> %2x \e[30;103m[%p]\e[0m\n", A->next->key, A->next, B->next->key, B->next);
-	node* t = (node*) malloc(sizeof t->next);
-	t = A->next->next;
-	A->next->next = B->next->next;
-	B->next->next = t;
-	t = A->next;
-	A->next = B->next;
-	B->next = t;
+void switchPosition(node* A, node* B){
+	printf("\n\tswitching position: %2x \e[30;103m[%p]\e[0m <=> %2x \e[30;103m[%p]\e[0m\n", A->key, A, B->key, B);
+	node t = *A->next;
+	*A->next = *B->next;
+	*B->next = t;
+	t = *A;
+	*A = *B;
+	*B = t;
 }
 
-void switchKeys(node* a, node* b){
+void switchKey(node* a, node* b){
 	printf("\n\tswitching key values: \e[30;103m%2x\e[0m [%p] <=> \e[30;103m%2x\e[0m [%p]\n", a->key, a, b->key, b);
-	node* t = (node*) malloc(sizeof t->key);
-	t->key = a->key;
+	node t;
+	t.key = a->key;
 	a->key = b->key;
-	b->key = t->key;
-	free(t);
+	b->key = t.key;
 }
 
 int main(){
@@ -69,15 +68,15 @@ int main(){
 		l[i] = (node*) malloc(sizeof *l);
 	}
 	for(int i = 2; i < 26 ; i++){
-		l[i] = addAfter((char)i+'a', l[0]);
+		l[i] = addAfter((char)i+'a', l[1]);
 		if(i==12) {
 			delAfter(l[i]);
 		}
 		if(i==17) {
-			switchPositionOfNext(l[i-1], l[8]);
+			switchPosition(l[i], l[8]);
 		}
 		if(i==4) {
-			switchKeys(l[2],l[i]);
+			switchKey(l[2],l[i]);
 		}
 		if(i==24) {
 			delAfter(l[i]);
@@ -85,9 +84,11 @@ int main(){
 	}
 
 	printf("\nResult:\n");
+
 	node* t = l[0];
 	char x = '2';
 	char y = '1';
+
 	for(int i = 0; ; ++i){
 		y = (y % 58) ? y : '0';
 		if(y == '0') ++x;
